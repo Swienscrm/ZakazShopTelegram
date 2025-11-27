@@ -1,21 +1,9 @@
-import os
-from ast import For
 from sqlalchemy import BigInteger, String, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_session, async_sessionmaker, create_async_engine
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "17032006")
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME", "mydatabase")
-
-
-DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+from config import DATABASE_URL
 
 engine = create_async_engine(url=DATABASE_URL)
 
@@ -31,6 +19,8 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     tg_id = mapped_column(BigInteger)
+
+    cart = relationship("Cart", back_populates="user")
 
 
 class Category(Base):
@@ -48,7 +38,20 @@ class Item(Base):
     description: Mapped[str] = mapped_column(String(100))
     price: Mapped[int] = mapped_column()
     category: Mapped[int] = mapped_column(ForeignKey("categories.id"))
+    
+    cart_item = relationship("Cart", back_populates="item")
 
+#Корзина
+class Cart(Base):
+    __tablename__ = "cart"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    item_id: Mapped[int] = mapped_column(ForeignKey("items.id"))
+    quantity: Mapped[int] = mapped_column(default=1)
+
+    user = relationship('User', back_populates="cart")
+    item = relationship("Item", back_populates="cart_item")
 
 
 async def async_main():

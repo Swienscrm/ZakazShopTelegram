@@ -53,13 +53,29 @@ async def category(callback:CallbackQuery):
     item_data = await db.get_item(item_id)
     await callback.answer("Вы выбрали товар")
     await callback.message.delete()
-    await callback.message.answer(f"✨{item_data.name}\n\nОписание:\n{item_data.description}\n\nЦена: {item_data.price}₽", reply_markup=await kb.item(item_data.category))
+    await callback.message.answer(f"✨{item_data.name}\n\nОписание:\n{item_data.description}\n\nЦена: {item_data.price}₽", reply_markup=await kb.item(item_data.category, item_id))
 
-
+@router.callback_query(F.data.startswith("add_item_cart_"))
+async def add_to_cart_handler(callback:CallbackQuery):
+    item_id = int(callback.data.split("_")[-1])
+    tg_id = callback.from_user.id
+    success = await db.add_to_cart(tg_id,item_id)
+    if success:
+        await callback.answer("Товар добавлен в коризну")
+    else:
+        await callback.answer("Ошибка при добавлении в корзину")
                                     #Обработчик "Корзина"
 @router.message(F.text == "Корзина")
 async def cart(message:Message):
     await message.delete()
+    tg_id = message.from_user.id
+    cart_items = await db.get_cart_items(tg_id)
+    total = await db.get_cart_total
+
+    if not cart_items:
+        await message.answer("Ваша корзина пуста", reply_markup=kb.cart_items)
+    else:
+
     await message.answer(ms.CART_MESSAGE, reply_markup=kb.cart)
 
 

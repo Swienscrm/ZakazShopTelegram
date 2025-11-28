@@ -33,16 +33,31 @@ async def items(category_id):
     keyboard.add(InlineKeyboardButton(text="🔙Назад", callback_data="back_to_categories"))
     return keyboard.adjust(2).as_markup()
 #Создание клавиш для товара
-async def item(category_id):
+async def item(category_id, item_id):
     return InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Добавить в корзину", callback_data="add_item_cart")],
         [InlineKeyboardButton(text="🔙Назад",callback_data=f"back_to_items_{category_id}")]])
 
 
+#Корзина
+async def cart_items(cart_items_data):
+    keyboard = InlineKeyboardBuilder
 
-cart = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Оформить заказ", callback_data="order"),
-    InlineKeyboardButton(text="Удалить товары", callback_data="delete_product")],
-    [InlineKeyboardButton(text="🔙Назад",callback_data="back_to_menu")]])
-
+    if not cart_items_data:
+        keyboard.add(InlineKeyboardButton(text="Назад", callback_data="back_to_menu"))
+        return keyboard.as_markup
+    
+    for item in cart_items_data:
+        keyboard.add(InlineKeyboardButton(
+            text=f"хуй{item["name"]} (x{item["quantity"]})",
+            callback_data=f"delete_cart_item_{item["cart_id"]}"
+        ))
+    keyboard.adjust(1)
+    keyboard.row(
+        InlineKeyboardButton(text = "Оформить заказ", callback_data="order"),
+        InlineKeyboardButton(text = "Очистить корзину", callback_data="clear_cart")
+        )
+    keyboard.add(InlineKeyboardButton(text="Назад", callback_data="back_to_menu"))
+    return keyboard.as_markup()
 manager = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🔙Назад", callback_data="back_to_menu")]])
 
 faq = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="🔙Назад", callback_data="back_to_menu")]])

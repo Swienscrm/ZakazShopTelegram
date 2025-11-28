@@ -2,4 +2,5 @@ python-dotenv
 aiogram
 sqlalchemy
 psycopg[binary]
+greenlet
 

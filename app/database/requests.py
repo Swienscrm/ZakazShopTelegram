@@ -49,14 +49,15 @@ async def add_to_cart(tg_id: int, item_id: int):
         await session.commit()
         return True
 
-# Получение всех товаров из корзины пользователя
+# Получение всех товаров из корзины пользователя (ИСПРАВЛЕНО)
 async def get_cart_items(tg_id: int):
     async with async_session() as session:
         user = await session.scalar(select(User).where(User.tg_id == tg_id))
         if not user:
             return []
         
-        result = await session.scalars(
+        # Правильный синтаксис для join в SQLAlchemy 2.0
+        result = await session.execute(
             select(Cart, Item)
             .join(Item, Cart.item_id == Item.id)
             .where(Cart.user_id == user.id)
@@ -73,14 +74,15 @@ async def get_cart_items(tg_id: int):
             })
         return cart_items
 
-# Получение общей суммы корзины
+# Получение общей суммы корзины (ИСПРАВЛЕНО)
 async def get_cart_total(tg_id: int):
     async with async_session() as session:
         user = await session.scalar(select(User).where(User.tg_id == tg_id))
         if not user:
             return 0
         
-        result = await session.scalars(
+        # Правильный синтаксис для join в SQLAlchemy 2.0
+        result = await session.execute(
             select(Cart, Item)
             .join(Item, Cart.item_id == Item.id)
             .where(Cart.user_id == user.id)

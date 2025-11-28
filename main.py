@@ -18,17 +18,19 @@ bot = Bot(BOT_TOKEN)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Добавляем роутер ОДИН РАЗ, до цикла
+dp.include_router(router)
+
 
 async def main():
     while True:
         try:
             await async_main()
-            print("База данный подключена")
-            dp.include_router(router)
+            print("База данных подключена")
             logging.info("Бот запускается")
             await dp.start_polling(bot, skip_updates=True)
         except Exception as e:
-            logging.error(f"Ошибка{e}")
+            logging.error(f"Ошибка {e}")
             logging.info("Перезапуск")
             await asyncio.sleep(1)
 
